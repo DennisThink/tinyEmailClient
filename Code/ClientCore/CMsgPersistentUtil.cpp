@@ -77,16 +77,6 @@ bool CMsgPersistentUtil::InitDataBase()
 		m_pGroupChatSelect = new SQLite::Statement(*m_pDb, strSQL);
 	}
 
-	if (nullptr == m_pGroupChatUpdate)
-	{
-		std::string strSqlTemplate = R"(UPDATE T_GROUP_CHAT_MSG SET F_READ_FLAG='READ' WHERE F_MSG_ID=?)";
-		m_pGroupChatUpdate = new SQLite::Statement(*m_pDb, strSqlTemplate);
-	}
 
-	if (nullptr == m_pGroupChatInsert)
-	{
-		std::string strSQLTemplate = R"(INSERT INTO T_GROUP_CHAT_MSG VALUES (?,?,?,?,?,?,?,?) )";
-		m_pGroupChatInsert = new SQLite::Statement(*m_pDb, strSQLTemplate);
-	}
-	return false;
+	return true;
 }
