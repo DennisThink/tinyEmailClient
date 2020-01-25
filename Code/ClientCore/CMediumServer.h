@@ -69,12 +69,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
     void do_accept();
 	void OnHttpRsp(std::shared_ptr<TransBaseMsg_t> pMsg);
 
-	void HandleFileDataSendRsp(const FileDataSendRspMsg& rspMsg);
 
-	void HandleFileDataRecvReq(const FileDataRecvReqMsg& reqMsg);
-
-	void HandleFileVerifyReq(const FileVerifyReqMsg& msg);
-	void HandleFriendNotifyFileMsgReq(const FriendNotifyFileMsgReqMsg& reqMsg);
   public:
     static std::shared_ptr<spdlog::logger> ms_loger;
     inline IpPortCfg &config() { return m_serverCfg; }
@@ -83,7 +78,6 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
     void SendBack(const std::shared_ptr<CClientSess>& pClientSess,const TransBaseMsg_t& msg);
 	void SendFoward(const std::shared_ptr<CServerSess>& pServerSess,const TransBaseMsg_t& msg);
 
-	void Handle_RecvFileOnlineRsp(const FriendRecvFileMsgRspMsg& rspMsg);
     void CheckAllConnect();
 
 	CClientSess_SHARED_PTR GetClientSess(const std::string strUserName);

@@ -55,14 +55,6 @@ int CClientSess::StartConnect()
 						m_connectInfo += "--->";
 						m_connectInfo = m_connectInfo + m_socket.remote_endpoint().address().to_v4().to_string() + ":" + std::to_string(m_socket.remote_endpoint().port());
 					}
-					{
-						if (m_queue)
-						{
-							NetRecoverReportMsg reqMsg;
-							TransBaseMsg_t transMsg(reqMsg.GetMsgType(), reqMsg.ToString());
-							m_queue->SendBack(shared_from_this(), transMsg);
-						}
-					}
 					do_read();
 					LOG_WARN(ms_loger, "Connect Success {}",GetConnectInfo());
 				}
@@ -73,16 +65,6 @@ int CClientSess::StartConnect()
 						 this->GetConnectInfo(), ec.value(), ec.message());
 				}
 			});
-	}
-	
-	if(IsConnect())
-	{
-		if (m_queue)
-		{
-			NetRecoverReportMsg reqMsg;
-			TransBaseMsg_t transMsg(reqMsg.GetMsgType(), reqMsg.ToString());
-			m_queue->SendBack(shared_from_this(), transMsg);
-		}
 	}
 	return 0;
 }
@@ -97,12 +79,6 @@ int CClientSess::StopConnect()
 	LOG_INFO(ms_loger, "Connect Closed IP:{},port:{}", m_serverIp, m_serverPort);
 	m_bConnect = ST_NOT_CONNECT;
 	m_socket.close();
-	if (m_queue)
-	{
-		NetFailedReportMsg reqMsg;
-		TransBaseMsg_t transMsg(reqMsg.GetMsgType(), reqMsg.ToString());
-		m_queue->SendBack(shared_from_this(), transMsg);
-	}
 	return 0;
 }
 

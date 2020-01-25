@@ -21,59 +21,9 @@ class CMsgPersistentUtil: public std::enable_shared_from_this<CMsgPersistentUtil
 {
 public:
 	bool InitDataBase();
-
-	//AddFriendRecvReqMsg
-	bool Save_AddFriendRecvReqMsg(const AddFriendRecvReqMsg& msg);
-
-	bool Get_AddFriendRecvReqMsg(AddFriendRecvReqMsg& msg);
-
-	bool Remove_AddFriendRecvReqMsg(const AddFriendRecvReqMsg& msg);
-
-	//AddFriendNotifyReqMsg
-	bool Save_AddFriendNotifyReqMsg(const AddFriendNotifyReqMsg& msg);
-
-	bool Get_AddFriendNotifyReqMsg(AddFriendNotifyReqMsg& msg);
-
-	bool Remove_AddFriendNotifyReqMsg(const AddFriendNotifyReqMsg& msg);
-
-	//FriendChatRecvTxtReqMsg
-	bool Save_FriendChatRecvTxtReqMsg(const FriendChatRecvTxtReqMsg& msg);
-
-	bool Get_FriendChatRecvTxtReqMsg(FriendChatRecvTxtReqMsg& msg);
-
-	bool Update_FriendChatRecvTxtReqMsg(const FriendChatRecvTxtReqMsg& msg);
-
-	//FriendRecvFileMsgReqMsg
-	bool Save_FriendRecvFileMsgReqMsg(const FriendRecvFileMsgReqMsg& msg);
-
-	bool Get_FriendRecvFileMsgReqMsg(FriendRecvFileMsgReqMsg& msg);
-
-	bool Update_FriendRecvFileMsgReqMsg(const FriendRecvFileMsgReqMsg& msg);
-
-
-	//FriendNotifyFileMsgReqMsg
-	bool Save_FriendNotifyFileMsgReqMsg(const FriendNotifyFileMsgReqMsg& msg);
-
-	bool Get_FriendNotifyFileMsgReqMsg(FriendNotifyFileMsgReqMsg& msg);
-
-	bool Update_FriendNotifyFileMsgReqMsg(const FriendNotifyFileMsgReqMsg& msg);
-
-	//RecvGroupTextMsgReqMsg
-	bool Save_RecvGroupTextMsgReqMsg(const RecvGroupTextMsgReqMsg& msg);
-
-	bool Get_RecvGroupTextMsgReqMsg(RecvGroupTextMsgReqMsg& msg);
-
-	bool Update_RecvGroupTextMsgReqMsg(const RecvGroupTextMsgReqMsg& msg);
-
 	static std::shared_ptr<spdlog::logger> ms_logger;
 
 private:
-	std::map<std::string, AddFriendRecvReqMsg> m_AddFriendRecvReqMsgMap;
-	std::map<std::string, AddFriendNotifyReqMsg> m_AddFriendNotifyReqMsgMap;
-	std::map<std::string, FriendChatRecvTxtReqMsg> m_FriendChatRecvTxtReqMsgMap;
-	std::map<std::string, RecvGroupTextMsgReqMsg> m_RecvGroupTextMsgReqMsgMap;
-	std::map<std::string, FriendRecvFileMsgReqMsg> m_FriendRecvFileMsgReqMsgMap;
-	std::map<std::string, FriendNotifyFileMsgReqMsg> m_FriendNotifyFileMsgReqMsgMap;
 
 	
 	SQLite::Database*    m_pDb;    ///< Database connection

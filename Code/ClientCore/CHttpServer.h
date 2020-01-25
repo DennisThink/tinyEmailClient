@@ -39,34 +39,9 @@ namespace ClientCore {
 			m_httpServer.stop();
 		}
 
-		void On_UserRegisterRsp(const UserRegisterRspMsg& msg);
+		
 
 		void On_UserLoginRsp(const UserLoginRspMsg&  msg);
-
-		void On_UserUnRegisterRsp(const UserUnRegisterRspMsg& msg);
-
-		void On_UserLogoutRsp(const UserLogoutRspMsg& msg);
-
-		//Friend 
-		void On_FindFriendRsp(const FindFriendRspMsg& msg);
-
-		void On_FriendChatSendTxtRsp(const FriendChatSendTxtRspMsg& msg);
-
-		void On_AddFriendSendRspMsg(const AddFriendSendRspMsg& msg);
-
-		void On_RemoveFriendRspMsg(const RemoveFriendRspMsg& msg);
-
-		void On_SendFriendFileOnlineRspMsg(const FriendSendFileMsgRspMsg& msg);
-		//Group
-		void On_FindGroupRsp(const FindGroupRspMsg& msg);
-
-		void On_AddToGroupRsp(const AddToGroupRspMsg& msg);
-
-		void On_CreateGroupRsp(const CreateGroupRspMsg& msg);
-
-		void On_DestroyGroupRsp(const DestroyGroupRspMsg& msg);
-
-		void On_SendGroupTextMsgRsp(const SendGroupTextMsgRspMsg& msg);
 		//void On_UserLogoutRsp(const )
 
 		static std::shared_ptr<spdlog::logger> ms_loger;

@@ -352,124 +352,8 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess,con
 		OnHttpRsp(pMsg);
 	}*/
 }
-void CMediumServer::HandleFileVerifyReq(const FileVerifyReqMsg& msg)
-{
-	/*FileVerifyRspMsg rspMsg;
-	std::string strRecvHash = m_fileUtil.CalcHash(msg.m_strFileName);
-	m_fileUtil.OnCloseFile(msg.m_nFileId + 1);
-	if (msg.m_strFileHash == strRecvHash)
-	{
-		rspMsg.m_eErrCode = ERROR_CODE_TYPE::E_CODE_SUCCEED;
-	}
-	else
-	{
-		rspMsg.m_eErrCode = ERROR_CODE_TYPE::E_CODE_LOGIN_FAILED;
-	}
-	rspMsg.m_strMsgId = msg.m_strMsgId;
-	rspMsg.m_strFileName = msg.m_strFileName;
-	rspMsg.m_strFromId = msg.m_strToId;
-	rspMsg.m_strToId = msg.m_strFromId;
-	rspMsg.m_nFileId = msg.m_nFileId;
-	auto pSess = GetClientSess(rspMsg.m_strFromId);
-	if (pSess != nullptr)
-	{
-		auto pSend = std::make_shared<TransBaseMsg_t>(rspMsg.GetMsgType(), rspMsg.ToString());
-		pSess->SendMsg(pSend);
-	}*/
 
-}
-void CMediumServer::HandleFileDataSendRsp(const FileDataSendRspMsg& rspMsg)
-{
-	/*if (rspMsg.m_nDataIndex < rspMsg.m_nDataTotalCount)
-	{
-		FileDataSendReqMsg reqMsg;
-		if (m_fileUtil.OnReadData(rspMsg.m_nFileId, reqMsg.m_szData, reqMsg.m_nDataLength, 1024))
-		{
-			LOG_INFO(ms_loger, "Read Data ", rspMsg.m_nFileId);
-			reqMsg.m_strMsgId = m_httpServer->GenerateMsgId();
-			reqMsg.m_nFileId = rspMsg.m_nFileId;
-			reqMsg.m_strFromId = rspMsg.m_strToId;
-			reqMsg.m_strToId = rspMsg.m_strFromId;
-			reqMsg.m_nDataTotalCount = rspMsg.m_nDataTotalCount;
-			reqMsg.m_nDataIndex = rspMsg.m_nDataIndex + 1;
-			auto pSess = GetClientSess(reqMsg.m_strFromId);
-			if (pSess != nullptr)
-			{
-				auto pSend = std::make_shared<TransBaseMsg_t>(reqMsg.GetMsgType(), reqMsg.ToString());
-				pSess->SendMsg(pSend);
-			}
-		}
-	}
-	else
-	{
-		FileVerifyReqMsg verifyReqMsg;
-		verifyReqMsg.m_strMsgId = m_httpServer->GenerateMsgId();
-		verifyReqMsg.m_nFileId = rspMsg.m_nFileId;
-		verifyReqMsg.m_strFromId = rspMsg.m_strToId;
-		verifyReqMsg.m_strToId = rspMsg.m_strFromId;
-		verifyReqMsg.m_strFileName = "";
-		verifyReqMsg.m_nFileSize = 0;
-		verifyReqMsg.m_strFileHash = "FILE_HASH";
-		auto pSess = GetClientSess(verifyReqMsg.m_strToId);
-		if (pSess != nullptr)
-		{
-			auto pSend = std::make_shared<TransBaseMsg_t>(verifyReqMsg.GetMsgType(), verifyReqMsg.ToString());
-			pSess->SendMsg(pSend);
-		}
-		m_fileUtil.OnCloseFile(rspMsg.m_nFileId);
-	}*/
-}
 
-void CMediumServer::HandleFriendNotifyFileMsgReq(const FriendNotifyFileMsgReqMsg& notifyMsg)
-{
-	/*if (notifyMsg.m_eOption == E_FRIEND_OPTION::E_AGREE_ADD)
-	{
-		int nFileId = 15;
-		std::string strFileName = "E:\\GitHub\\DennisThinkIM\\源代码\\Client\\ClientCore_TinyIM\\bin\\Debug\\Read.txt";
-		int nFileSize = 0;
-		m_fileUtil.GetFileSize(nFileSize, strFileName);
-		if (m_fileUtil.OpenReadFile(notifyMsg.m_nFileId, strFileName)) {
-			FileDataSendReqMsg sendReqMsg;
-			sendReqMsg.m_strMsgId = m_httpServer->GenerateMsgId();
-			sendReqMsg.m_strFromId = notifyMsg.m_strToId;
-			sendReqMsg.m_strToId = notifyMsg.m_strFromId;
-			sendReqMsg.m_nFileId = notifyMsg.m_nFileId;
-
-			sendReqMsg.m_nDataTotalCount =  nFileSize / 1024 + (nFileSize%1024 == 0 ? 0 : 1);
-			sendReqMsg.m_nDataIndex = 1;
-			sendReqMsg.m_nDataLength = 0;
-			m_fileUtil.OnReadData(sendReqMsg.m_nFileId, sendReqMsg.m_szData, sendReqMsg.m_nDataLength, 1024);
-			auto pSess = GetClientSess(notifyMsg.m_strToId);
-			if (pSess != nullptr)
-			{
-				auto pSend = std::make_shared<TransBaseMsg_t>(sendReqMsg.GetMsgType(), sendReqMsg.ToString());
-				pSess->SendMsg(pSend);
-			}
-		}
-	}*/
-}
-void CMediumServer::HandleFileDataRecvReq(const FileDataRecvReqMsg& reqMsg)
-{
-	/*if (reqMsg.m_nDataIndex <= reqMsg.m_nDataTotalCount)
-	{
-		m_fileUtil.OnWriteData(reqMsg.m_nFileId + 1, reqMsg.m_szData, reqMsg.m_nDataLength);
-		LOG_INFO(ms_loger, "WriteData ", reqMsg.m_nFileId);
-		FileDataRecvRspMsg rspMsg;
-		rspMsg.m_strMsgId = reqMsg.m_strMsgId;
-		rspMsg.m_nFileId = reqMsg.m_nFileId;
-		rspMsg.m_strFromId = reqMsg.m_strToId;
-		rspMsg.m_strToId = reqMsg.m_strFromId;
-		rspMsg.m_nDataTotalCount = reqMsg.m_nDataTotalCount;
-		rspMsg.m_nDataIndex = reqMsg.m_nDataIndex;
-
-		auto pSess = GetClientSess(rspMsg.m_strFromId);
-		if (pSess != nullptr)
-		{
-			auto pSend = std::make_shared<TransBaseMsg_t>(rspMsg.GetMsgType(), rspMsg.ToString());
-			pSess->SendMsg(pSend);
-		}
-	}*/
-}
 /**
  * @brief 将TCP的回复消息变为HTTP消息
  * 
@@ -722,13 +606,7 @@ void CMediumServer::OnHttpRsp(std::shared_ptr<TransBaseMsg_t> pMsg)
 	}*/
 }
 
-void CMediumServer::Handle_RecvFileOnlineRsp(const FriendRecvFileMsgRspMsg& rspMsg)
-{
-	/*if (rspMsg.m_eOption == E_FRIEND_OPTION::E_AGREE_ADD)
-	{
-		m_fileUtil.OpenWriteFile(rspMsg.m_nFileId+1, rspMsg.m_strFromId+std::to_string(rand())+".txt");
-	}*/
-}
+
 /**
  * @brief 将消息转发到远端的服务器
  * 
