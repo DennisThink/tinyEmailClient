@@ -47,8 +47,10 @@ set(SERVER_FILES
 		./CHttpServer.h ./CHttpServer.cpp
 		CMsgPersistentUtil.h CMsgPersistentUtil.cpp
 		CFileUtil.h  CFileUtil.cpp
+		./SMTP_Handler.h ./SMTP_Handler.cpp
 		../msgStruct/CommonDef.cpp
         ../msgStruct/CommonMsg.cpp
+        ../msgStruct/SMTP_Cmd.cpp
         )
 
 SET(SQLITE_CPP_SOURCE ../include/thirdparty/SQLiteCpp/sqlite3/sqlite3.c
