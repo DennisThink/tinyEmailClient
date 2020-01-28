@@ -28,18 +28,29 @@ namespace ClientCore
 		if (reqMsg.FromString(strReq))
 		{
 			reqMsg.m_strMsgId = GenerateMsgId();
-			auto pSendMsg = std::make_shared<TransBaseMsg_t>(reqMsg.GetMsgType(), reqMsg.ToString());
-			auto pClientSess = m_pServer->GetClientSess(reqMsg.m_strUserName);
-			if (pClientSess)
-			{
-				pClientSess->SendMsg(pSendMsg);
-			}
+			m_pServer->HandleUserLoginReq(reqMsg);
 			m_httpRspMap.insert(HTTP_RSP_MAP_PAIR(reqMsg.m_strMsgId, response));
 			m_userLoginMsgMap.erase(reqMsg.m_strUserName);
 			m_userLoginMsgMap.insert({ reqMsg.m_strUserName,reqMsg });
 		}
 	}
 
+	void CHttpServer::Post_SendEmail(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request)
+	{
+		std::string  strReq = request->content.string();
+		SendEmailReq reqMsg;
+		if (reqMsg.FromString(strReq))
+		{
+			reqMsg.m_strMsgId = GenerateMsgId();
+			m_pServer->HandleSendEmailReq(reqMsg);
+			m_httpRspMap.insert(HTTP_RSP_MAP_PAIR(reqMsg.m_strMsgId, response));
+		}
+	}
+
+	void CHttpServer::Get_TaskState(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request)
+	{
+
+	}
 
 
 

@@ -353,6 +353,21 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess,con
 	}*/
 }
 
+
+void CMediumServer::HandleSendEmailReq(const SendEmailReq& reqMsg)
+{
+
+}
+
+void CMediumServer::HandleUserLoginReq(const UserLoginReqMsg& reqMsg)
+{
+
+}
+
+void CMediumServer::HandleGetTaskReq(const QueryTaskReq& reqMsg)
+{
+
+}
 void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess, const std::string msg)
 {
 	auto pSmtp = GetSmtpHandler(pClientSess);

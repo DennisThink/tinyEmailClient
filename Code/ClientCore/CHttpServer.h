@@ -57,6 +57,10 @@ namespace ClientCore {
 
 		void Post_UserLogin(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request);
 
+		void Post_SendEmail(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request);
+
+		void Get_TaskState(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request);
+
 		void Init();
 
 		std::string GetHttpParamUserId(std::shared_ptr<HttpServer::Request> request);

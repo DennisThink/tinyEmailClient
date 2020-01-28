@@ -75,7 +75,9 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
     static std::shared_ptr<spdlog::logger> ms_loger;
     inline IpPortCfg &config() { return m_serverCfg; }
 
-
+	void HandleSendEmailReq(const SendEmailReq& reqMsg);
+	void HandleUserLoginReq(const UserLoginReqMsg& reqMsg);
+	void HandleGetTaskReq(const QueryTaskReq& reqMsg);
     void SendBack(const std::shared_ptr<CClientSess>& pClientSess,const TransBaseMsg_t& msg);
 	void SendBack(const std::shared_ptr<CClientSess>& pClientSess, const std::string msg);
 	void SendFoward(const std::shared_ptr<CServerSess>& pServerSess,const TransBaseMsg_t& msg);
