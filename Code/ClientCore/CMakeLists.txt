@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(MediumServer)
+project(ClientCore)
 add_definitions(-DUSE_STANDALONE_ASIO)
 add_definitions(-DASIO_STANDALONE)
 set(CMAKE_C_COMPILER gcc)

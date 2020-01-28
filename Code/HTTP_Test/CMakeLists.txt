@@ -4,11 +4,12 @@ add_definitions(-DUSE_STANDALONE_ASIO)
 add_definitions(-DASIO_STANDALONE)
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
-include_directories(../../../msgStruct/)
-include_directories(../../../msgStruct/json11)
+include_directories(../msgStruct/)
+
 include_directories(../include/thirdparty/)
 include_directories(../include/thirdparty/asio/)
 include_directories(../include/thirdparty/spdlog/)
+include_directories(../include/thirdparty/json11/)
 include_directories(../include/thirdparty/fmt/include/)
 include_directories(../include/thirdparty/httpServer/)
 include_directories(../include/common/)
@@ -34,11 +35,12 @@ link_libraries(pthread dl)
 endif()	
 set(SERVER_FILES main.cpp
     ../include/thirdparty/json11/json11.cpp
+   ../msgStruct/CommonMsg.cpp
 )
 #set(LEARN_SERVER_FILES fmtLearn.cpp
 #  ../include/thirdparty/fmt/src/format.cc
 #  ../include/thirdparty/fmt/src/posix.cc
 #  ../include/thirdparty/json11/json11.cpp)
-#add_executable(HttpTest ${SERVER_FILES})
+add_executable(HttpTest ${SERVER_FILES})
 #add_executable(FmtLearn ${LEARN_SERVER_FILES})
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin) 

@@ -81,7 +81,14 @@ int CClientSess::StopConnect()
 	m_socket.close();
 	return 0;
 }
-
+void CClientSess::handle_message(const std::string strMsg)
+{
+	LOG_INFO(ms_loger, "{} [{} {}]", strMsg,__FILENAME__,__LINE__);
+	if (m_queue)
+	{
+		m_queue->SendBack(shared_from_this(), strMsg);
+	}
+}
 /**
  * @brief
  * 处理消息的总入口，在此处根据消息类型，完成消息的分发,需要增加新消息的，在此处增加分发代码
@@ -116,17 +123,19 @@ int CClientSess::do_read()
 		m_socket.async_read_some(
 			asio::buffer(m_recvbuf + m_recvpos, max_length - m_recvpos),
 			[this, self](std::error_code ec, std::size_t length) {
-			TransBaseMsg_t msg(m_recvbuf);
 			auto curlen = m_recvpos + length;
 			//此处必须为 >=，否则需要等到下一条消息到来的时候，前一条消息才能处理
-			while (curlen >= sizeof(Header) && curlen >= msg.GetSize())
+			std::string strRecv(m_recvbuf, curlen);
+			auto nPos = strRecv.find("\r\n");
+			if (nPos != std::string::npos)
 			{
-				handle_message(msg);
-				curlen -= msg.GetSize();
-				memmove(m_recvbuf, m_recvbuf + msg.GetSize(), curlen);
+				std::string strCur = strRecv.substr(0, nPos);
+				handle_message(strCur);
+				memmove(m_recvbuf, m_recvbuf + nPos, curlen - nPos);
+				curlen = curlen - nPos;
 			}
 			m_recvpos = (uint32_t)curlen;
-			if (m_recvpos < max_length && !ec)
+			if (!ec)
 			{
 				do_read();
 			}

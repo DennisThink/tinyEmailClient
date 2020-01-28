@@ -353,7 +353,18 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess,con
 	}*/
 }
 
-
+void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess, const std::string msg)
+{
+	auto pSmtp = GetSmtpHandler(pClientSess);
+	if (pSmtp)
+	{
+		pSmtp->HandleServerRsp(msg);
+	}
+}
+C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess)
+{
+	return m_smtpHandler;
+}
 /**
  * @brief 将TCP的回复消息变为HTTP消息
  * 

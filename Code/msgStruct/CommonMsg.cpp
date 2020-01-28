@@ -401,3 +401,279 @@ bool UserLoginRspMsg::Valid() const
     return true;
 }
 
+
+
+SendEmailReq::SendEmailReq()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string SendEmailReq::ToString() const
+{
+	using namespace json11;
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"MsgId", m_strMsgId},
+			{"UserName", m_strUserName},
+			{"RecvName", m_strRecvName},
+			{"Subject", m_strSubject},
+			{"Context", m_strEmailContext},
+		});
+
+	return clientObj.dump();
+}
+
+bool SendEmailReq::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+	if (json["UserName"].is_string())
+	{
+		m_strUserName = json["UserName"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["RecvName"].is_string())
+	{
+		m_strRecvName = json["RecvName"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Subject"].is_string())
+	{
+		m_strSubject = json["Subject"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Context"].is_string())
+	{
+		m_strEmailContext = json["Context"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool SendEmailReq::Valid() const
+{
+	if (m_strUserName.empty())
+	{
+		return false;
+	}
+	return true;
+}
+
+
+SendEmailRsp::SendEmailRsp()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string SendEmailRsp::ToString() const
+{
+	using namespace json11;
+
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"MsgId", m_strMsgId},
+			{"TaskId",m_strTaskId},
+		});
+
+	return clientObj.dump();
+}
+
+bool SendEmailRsp::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["TaskId"].is_string())
+	{
+		m_strTaskId = json["TaskId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+bool SendEmailRsp::Valid() const {
+	return true;
+}
+QueryTaskReq::QueryTaskReq()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string QueryTaskReq::ToString() const
+{
+	using namespace json11;
+
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"MsgId", m_strMsgId},
+			{"TaskId",m_strTaskId},
+		});
+
+	return clientObj.dump();
+}
+
+bool QueryTaskReq::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["TaskId"].is_string())
+	{
+		m_strTaskId = json["TaskId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+
+bool QueryTaskReq::Valid() const
+{
+	return true;
+}
+
+
+QueryTaskRsp::QueryTaskRsp()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string QueryTaskRsp::ToString() const
+{
+	using namespace json11;
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"MsgId", m_strMsgId},
+			{"TaskId",m_strTaskId},
+			{"Code",static_cast<int>(m_eErrCode)},
+			{"Msg",m_strErrMsg},
+		});
+
+	return clientObj.dump();
+}
+
+bool QueryTaskRsp::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["TaskId"].is_string())
+	{
+		m_strTaskId = json["TaskId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Code"].is_number())
+	{
+		m_eErrCode = static_cast<ERROR_CODE_TYPE>(json["Code"].int_value());
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Msg"].is_string())
+	{
+		m_strErrMsg = json["Msg"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+
+bool QueryTaskRsp::Valid() const
+{
+	return true;
+}

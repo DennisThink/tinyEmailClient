@@ -96,6 +96,7 @@ private:
 	std::string GetConnectInfo() const;
 	int do_read();
 	void handle_message(const TransBaseMsg_t& msg);
+	void handle_message(const std::string strMsg);
 
 	
 	void handleKeepAliveReq(const KeepAliveReqMsg& reqMsg);

@@ -1,9 +1,15 @@
+#ifndef _SNOW_FLAKE_H_
+#define _SNOW_FLAKE_H_
+
 #include <stdint.h>
 #ifndef _WIN32
 #include <sys/time.h>
 #else
-#include <time.h>
 #include <windows.h>
+#include <time.h>
+#ifndef _WINSOCKAPI_
+#include <winsock2.h>
+#endif
 static int gettimeofday(struct timeval *tp, void *tzp)
 {
 	time_t clock;
@@ -110,5 +116,6 @@ public:
                 | machineId << machine_left
                 | sequence;
     }
-
 };
+
+#endif

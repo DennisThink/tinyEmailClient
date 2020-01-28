@@ -264,8 +264,70 @@ public:
 	virtual bool Valid() const override;
 };
 
+class SendEmailReq final :public BaseMsg
+{
+public:
+	std::string m_strMsgId;//消息ID
+	std::string m_strUserName;//用户名
+	std::string m_strRecvName;//密码
+	std::string m_strSubject;//邮件主题
+	std::string m_strEmailContext;//邮件内容
+public:
+	explicit SendEmailReq();
 
+	virtual std::string ToString() const override;
 
+	virtual bool FromString(const std::string& strJson) override;
+
+	virtual bool Valid() const override;
+};
+
+class SendEmailRsp final :public BaseMsg
+{
+public:
+	std::string m_strMsgId;//消息ID
+	std::string m_strTaskId;//任务ID
+public:
+	explicit SendEmailRsp();
+
+	virtual std::string ToString() const override;
+
+	virtual bool FromString(const std::string& strJson) override;
+
+	virtual bool Valid() const override;
+};
+
+class QueryTaskReq final :public BaseMsg
+{
+public:
+	std::string m_strMsgId;//消息ID
+	std::string m_strTaskId;//任务ID
+public:
+	explicit QueryTaskReq();
+
+	virtual std::string ToString() const override;
+
+	virtual bool FromString(const std::string& strJson) override;
+
+	virtual bool Valid() const override;
+};
+
+class QueryTaskRsp final :public BaseMsg
+{
+public:
+	ERROR_CODE_TYPE m_eErrCode; //错误代码
+	std::string m_strErrMsg; //错误信息
+	std::string m_strMsgId;//消息ID
+	std::string m_strTaskId;//用户ID
+public:
+	explicit QueryTaskRsp();
+
+	virtual std::string ToString() const override;
+
+	virtual bool FromString(const std::string& strJson) override;
+
+	virtual bool Valid() const override;
+};
 /**
  * @brief 服务器配置
  * 

@@ -27,6 +27,7 @@
 #include "planform.h"
 #include "CMsgPersistentUtil.h"
 #include "CFileUtil.h"
+#include "SMTP_Handler.h"
 namespace ClientCore
 {
 using tcp = asio::ip::tcp;
@@ -68,7 +69,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
 
     void do_accept();
 	void OnHttpRsp(std::shared_ptr<TransBaseMsg_t> pMsg);
-
+	C_SMTP_Handler_PTR GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess);
 
   public:
     static std::shared_ptr<spdlog::logger> ms_loger;
@@ -76,6 +77,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
 
 
     void SendBack(const std::shared_ptr<CClientSess>& pClientSess,const TransBaseMsg_t& msg);
+	void SendBack(const std::shared_ptr<CClientSess>& pClientSess, const std::string msg);
 	void SendFoward(const std::shared_ptr<CServerSess>& pServerSess,const TransBaseMsg_t& msg);
 
     void CheckAllConnect();
@@ -94,6 +96,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
 		m_httpServer = std::make_shared<CHttpServer>(m_ioService,this);
 		m_msgPersisUtil = std::make_shared<CMsgPersistentUtil>();
 		m_msgPersisUtil->InitDataBase();
+		m_smtpHandler = std::make_shared<C_SMTP_Handler>();
     }
 
 	void start(const std::function<void(const std::error_code &)> &callback);
@@ -104,6 +107,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
 private:
 	std::map<std::string, CLIENT_SESS_STATE>  m_userStateMap;
 	std::map<std::string, UserLoginReqMsg> m_userLoginMsgMap;
+	C_SMTP_Handler_PTR m_smtpHandler;
 };
 } // namespace MediumServer
 
