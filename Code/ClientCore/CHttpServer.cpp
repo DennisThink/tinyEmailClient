@@ -30,8 +30,6 @@ namespace ClientCore
 			reqMsg.m_strMsgId = GenerateMsgId();
 			m_pServer->HandleUserLoginReq(reqMsg);
 			m_httpRspMap.insert(HTTP_RSP_MAP_PAIR(reqMsg.m_strMsgId, response));
-			m_userLoginMsgMap.erase(reqMsg.m_strUserName);
-			m_userLoginMsgMap.insert({ reqMsg.m_strUserName,reqMsg });
 		}
 	}
 
@@ -71,6 +69,31 @@ namespace ClientCore
 		}
 	}
 
+	void CHttpServer::On_SendEmailRsp(const SendEmailRsp& msg)
+	{
+		if (!msg.m_strMsgId.empty()) {
+			auto item = m_httpRspMap.find(msg.m_strMsgId);
+			if (item != m_httpRspMap.end()) {
+				std::string strContent = msg.ToString();
+				(*(item->second)) << "HTTP/1.1 200 OK\r\nContent-Length: " << strContent.length() << "\r\n\r\n"
+					<< strContent;
+				m_httpRspMap.erase(item);
+			}
+		}
+	}
+
+	void CHttpServer::On_QueryTaskRsp(const QueryTaskRsp& msg)
+	{
+		if (!msg.m_strMsgId.empty()) {
+			auto item = m_httpRspMap.find(msg.m_strMsgId);
+			if (item != m_httpRspMap.end()) {
+				std::string strContent = msg.ToString();
+				(*(item->second)) << "HTTP/1.1 200 OK\r\nContent-Length: " << strContent.length() << "\r\n\r\n"
+					<< strContent;
+				m_httpRspMap.erase(item);
+			}
+		}
+	}
 
 	
 
@@ -123,18 +146,6 @@ namespace ClientCore
 			this->Post_UserLogin(response, request);
 		};
 		//User End
-	}
-
-	UserLoginReqMsg CHttpServer::GetUserLoginReq(const std::string strUserName) const {
-		auto item = m_userLoginMsgMap.find(strUserName);
-		if (item != m_userLoginMsgMap.end()) {
-			return item->second;
-		}
-		else {
-			UserLoginReqMsg reqMsg;
-			reqMsg.m_strUserName = strUserName;
-			return reqMsg;
-		}
 	}
 }
 

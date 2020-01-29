@@ -85,6 +85,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
     void CheckAllConnect();
 
 	CClientSess_SHARED_PTR GetClientSess(const std::string strUserName);
+	CClientSess_SHARED_PTR GetClientSess(const IpPortCfg& smtpCfg);
 	CMsgPersistentUtil_SHARED_PTR GetMsgPersisUtil() {
 		return m_msgPersisUtil;
 	}
@@ -110,6 +111,8 @@ private:
 	std::map<std::string, CLIENT_SESS_STATE>  m_userStateMap;
 	std::map<std::string, UserLoginReqMsg> m_userLoginMsgMap;
 	C_SMTP_Handler_PTR m_smtpHandler;
+	std::map<CClientSess_SHARED_PTR, C_SMTP_Handler_PTR> m_clientSessHandlerMap;
+	std::map<std::string, C_SMTP_Handler_PTR> m_TaskIdHandlerMap;
 };
 } // namespace MediumServer
 

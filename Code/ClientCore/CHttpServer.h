@@ -42,6 +42,8 @@ namespace ClientCore {
 		
 
 		void On_UserLoginRsp(const UserLoginRspMsg&  msg);
+		void On_SendEmailRsp(const SendEmailRsp& msg);
+		void On_QueryTaskRsp(const QueryTaskRsp& msg);
 		//void On_UserLogoutRsp(const )
 
 		static std::shared_ptr<spdlog::logger> ms_loger;
@@ -72,7 +74,7 @@ namespace ClientCore {
 		std::map<CClientSess_SHARED_PTR, std::shared_ptr<HttpServer::Response>> m_clientSessResponseMap;
 		HTTP_RSP_MAP m_httpRspMap;
 
-		std::map<std::string, UserLoginReqMsg> m_userLoginMsgMap;
+
 	};
 }
 #endif

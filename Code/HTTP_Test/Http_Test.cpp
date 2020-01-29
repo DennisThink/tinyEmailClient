@@ -16,7 +16,7 @@ void Do_UserLogin(HttpClient& client) {
 		UserLoginReqMsg reqMsg;
 		reqMsg.m_strMsgId = std::to_string(msgIdUtil.nextId());
 		reqMsg.m_strUserName = "dennismi@163.com";
-		reqMsg.m_strPassword = "";
+		reqMsg.m_strPassword = "123456";
 		auto rsp = client.request("POST", "/user_login", reqMsg.ToString());
 		std::string strRsp = rsp->content.string();
 		std::cout << strRsp << std::endl;

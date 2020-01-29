@@ -69,7 +69,7 @@ public:
 	
 	
 
-    CClientSess(asio::io_service& ioService,std::string& strIp,int port, CMediumServer* queue);
+    CClientSess(asio::io_service& ioService,const std::string& strIp,int port, CMediumServer* queue);
 
     int StartConnect();
     int StopConnect();

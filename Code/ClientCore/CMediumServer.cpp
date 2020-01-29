@@ -227,8 +227,15 @@ CClientSess_SHARED_PTR CMediumServer::GetClientSess(const std::string strUserNam
 		m_freeClientSess->StartConnect();
 		m_userClientSessMap.insert(std::pair<std::string, CClientSess_SHARED_PTR>(strUserName, pReturn));
 		return pReturn;
-	}
-	
+	}	
+}
+
+CClientSess_SHARED_PTR CMediumServer::GetClientSess(const IpPortCfg& smtpCfg)
+{
+	auto pSess = std::make_shared<CClientSess>(m_ioService,
+		smtpCfg.m_strServerIp,
+		smtpCfg.m_nPort, this);
+	return pSess;
 }
 
 /**
@@ -356,12 +363,40 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess,con
 
 void CMediumServer::HandleSendEmailReq(const SendEmailReq& reqMsg)
 {
+	SendEmailRsp rspMsg;
+	rspMsg.m_strMsgId = reqMsg.m_strMsgId;
+	auto item = m_userLoginMsgMap.find(reqMsg.m_strUserName);
+	if (item != m_userLoginMsgMap.end())
+	{
+		IpPortCfg cfg = C_SMTP_Handler::GetSmtpIpServerAddr(reqMsg.m_strUserName);
+		auto pSess = GetClientSess(cfg);
+		auto pHandler = std::make_shared<C_SMTP_Handler>();
 
+		m_clientSessHandlerMap.insert({ pSess,pHandler });
+		rspMsg.m_strTaskId = m_httpServer->GenerateMsgId();
+		m_TaskIdHandlerMap.insert({ rspMsg.m_strTaskId,pHandler });
+		pSess->StartConnect();
+	}
+	else
+	{
+		rspMsg.m_strTaskId = "";
+	}
+
+	
+	if (m_httpServer)
+	{
+		m_httpServer->On_SendEmailRsp(rspMsg);
+	}
 }
 
 void CMediumServer::HandleUserLoginReq(const UserLoginReqMsg& reqMsg)
 {
-
+	m_userLoginMsgMap.erase(reqMsg.m_strUserName);
+	m_userLoginMsgMap.insert({ reqMsg.m_strUserName,reqMsg });
+	UserLoginRspMsg rspMsg;
+	rspMsg.m_strMsgId = reqMsg.m_strMsgId;
+	rspMsg.m_strUserName = reqMsg.m_strUserName;
+	m_httpServer->On_UserLoginRsp(rspMsg);
 }
 
 void CMediumServer::HandleGetTaskReq(const QueryTaskReq& reqMsg)
@@ -378,7 +413,15 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess, co
 }
 C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess)
 {
-	return m_smtpHandler;
+	auto item = m_clientSessHandlerMap.find(pClientSess);
+	if (item != m_clientSessHandlerMap.end())
+	{
+		return item->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 /**
  * @brief 将TCP的回复消息变为HTTP消息

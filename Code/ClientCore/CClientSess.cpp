@@ -18,7 +18,7 @@ namespace ClientCore
 {
 std::shared_ptr<spdlog::logger> CClientSess::ms_loger;
 
-CClientSess::CClientSess(asio::io_service &ioService, std::string &strIp,
+CClientSess::CClientSess(asio::io_service &ioService,const std::string &strIp,
 						 int port, CMediumServer *queue)
 	: m_ioService(ioService), m_serverIp(strIp), m_serverPort(port),
 	  m_queue(queue), m_socket(ioService), m_bConnect(ST_NOT_CONNECT)
