@@ -8,6 +8,7 @@
 #include "Log.h"
 #include "planform.h"
 #include "CommonConfig.h"
+#include "SMTP_Handler.h"
 using asio::ip::tcp;
 using namespace std;
 
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
 	ClientCore::CClientSess::ms_loger = logger;
 	ClientCore::CServerSess::ms_loger = logger;
 	ClientCore::CMediumServer::ms_loger = logger;
+	C_SMTP_Handler::ms_loger = logger;
 	//MediumServer::CClientSessManager::ms_loger = logger;
 
 	asio::io_service IoService;

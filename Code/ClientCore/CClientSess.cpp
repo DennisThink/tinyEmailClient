@@ -124,24 +124,27 @@ int CClientSess::do_read()
 			asio::buffer(m_recvbuf + m_recvpos, max_length - m_recvpos),
 			[this, self](std::error_code ec, std::size_t length) {
 			auto curlen = m_recvpos + length;
-			//此处必须为 >=，否则需要等到下一条消息到来的时候，前一条消息才能处理
-			std::string strRecv(m_recvbuf, curlen);
-			auto nPos = strRecv.find("\r\n");
-			if (nPos != std::string::npos)
+			if (curlen > 2)
 			{
-				std::string strCur = strRecv.substr(0, nPos);
-				handle_message(strCur);
-				memmove(m_recvbuf, m_recvbuf + nPos, curlen - nPos);
-				curlen = curlen - nPos;
-			}
-			m_recvpos = (uint32_t)curlen;
-			if (!ec)
-			{
-				do_read();
-			}
-			else
-			{
-				StopConnect();
+				//此处必须为 >=，否则需要等到下一条消息到来的时候，前一条消息才能处理
+				std::string strRecv(m_recvbuf, curlen);
+				auto nPos = strRecv.find("\r\n");
+				if (nPos != std::string::npos && nPos != 0)
+				{
+					std::string strCur = strRecv.substr(0, nPos);
+					handle_message(strCur);
+					memmove(m_recvbuf, m_recvbuf + nPos, curlen - nPos);
+					curlen = curlen - nPos - 2;
+				}
+				m_recvpos = (uint32_t)curlen;
+				if (!ec)
+				{
+					do_read();
+				}
+				else
+				{
+					StopConnect();
+				}
 			}
 		});
 	}
@@ -188,6 +191,35 @@ bool CClientSess::SendMsg(std::shared_ptr<TransBaseMsg_t> pMsg)
 	return true;
 }
 
+bool CClientSess::SendMsg(const std::string strMsg)
+{
+	if (IsConnect())
+	{
+		LOG_WARN(ms_loger, " {} Send {}", GetConnectInfo(), strMsg);
+		auto self = shared_from_this();
+		memcpy(m_sendbuf, strMsg.data(), strMsg.length());
+		asio::async_write(
+			m_socket, asio::buffer(m_sendbuf, strMsg.length()),
+			[this, self](std::error_code ec, std::size_t length) mutable {
+			if (ec)
+			{
+				LOG_WARN(ms_loger, " {} Send Failed", GetConnectInfo());
+				StopConnect();
+			}
+			else
+			{
+				LOG_WARN(ms_loger, " {} Send Succeed {}", GetConnectInfo(),
+					length);
+			}
+		});
+	}
+	else
+	{
+		//LOG_WARN(ms_loger, "{} Not Connect", GetConnectInfo());
+		StartConnect();
+	}
+	return true;
+}
 
 /**
  * @brief 发送心跳请求消息

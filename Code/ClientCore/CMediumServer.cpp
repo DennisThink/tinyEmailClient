@@ -173,36 +173,36 @@ void CMediumServer::CheckAllConnect()
  */
 void CMediumServer::do_accept() 
 {
-		LOG_INFO(ms_loger,"CMediumServer do_accept [{} {}]", __FILENAME__, __LINE__);
-        m_acceptor.async_accept(m_socket, [this](std::error_code ec) {
-            if (!ec)
-			{
-			   LOG_INFO(ms_loger,"Server accept Successed [{} {}]",__FILENAME__, __LINE__);
-               
+		//LOG_INFO(ms_loger,"CMediumServer do_accept [{} {}]", __FILENAME__, __LINE__);
+  //      m_acceptor.async_accept(m_socket, [this](std::error_code ec) {
+  //          if (!ec)
+		//	{
+		//	   LOG_INFO(ms_loger,"Server accept Successed [{} {}]",__FILENAME__, __LINE__);
+  //             
 
-			   if (!m_clientCfgVec.empty() && !m_clientBinCfgVec.empty())
-			   {
-				   //
-				   auto clientSess = std::make_shared<CClientSess>(m_ioService, 
-					                                               m_clientCfgVec[0].m_strServerIp, 
-					                                               m_clientCfgVec[0].m_nPort, this);
+		//	   if (!m_clientCfgVec.empty() && !m_clientBinCfgVec.empty())
+		//	   {
+		//		   //
+		//		   auto clientSess = std::make_shared<CClientSess>(m_ioService, 
+		//			                                               m_clientCfgVec[0].m_strServerIp, 
+		//			                                               m_clientCfgVec[0].m_nPort, this);
 
-				   clientSess->StartConnect();
-
-
-				   //
-				   auto serverSess = std::make_shared<CServerSess>(std::move(m_socket), this);
-				   serverSess->Start();
+		//		   clientSess->StartConnect();
 
 
-				   //
-				   m_ForwardSessMap.insert(std::pair<CServerSess_SHARED_PTR, CClientSess_SHARED_PTR>(serverSess, clientSess));
-				   m_BackSessMap.insert(std::pair<CClientSess_SHARED_PTR,CServerSess_SHARED_PTR>(clientSess, serverSess));
+		//		   //
+		//		   auto serverSess = std::make_shared<CServerSess>(std::move(m_socket), this);
+		//		   serverSess->Start();
 
-			   }
-			}
-            do_accept();
-        });
+
+		//		   //
+		//		   m_ForwardSessMap.insert(std::pair<CServerSess_SHARED_PTR, CClientSess_SHARED_PTR>(serverSess, clientSess));
+		//		   m_BackSessMap.insert(std::pair<CClientSess_SHARED_PTR,CServerSess_SHARED_PTR>(clientSess, serverSess));
+
+		//	   }
+		//	}
+  //          do_accept();
+  //      });
 }
 
 /**
@@ -409,6 +409,11 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess, co
 	if (pSmtp)
 	{
 		pSmtp->HandleServerRsp(msg);
+		auto pMsg = pSmtp->GetNextMsg();
+		if (pMsg)
+		{
+			pClientSess->SendMsg(pMsg->ToString());
+		}
 	}
 }
 C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess)
@@ -430,249 +435,6 @@ C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSe
  */
 void CMediumServer::OnHttpRsp(std::shared_ptr<TransBaseMsg_t> pMsg)
 {
-	/*if (pMsg)
-	{
-		switch (pMsg->GetType())
-		{
-		case MessageType::UserRegisterRsp_Type:
-		{
-			UserRegisterRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string()))
-			{
-				if (m_httpServer)
-				{
-					m_httpServer->On_UserRegisterRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::UserUnRegisterRsp_Type:
-		{
-			UserUnRegisterRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_UserUnRegisterRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::UserLoginRsp_Type:
-		{
-			UserLoginRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_UserLoginRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::UserLogoutRsp_Type:
-		{
-			UserLogoutRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_UserLogoutRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::FindFriendRsp_Type:
-		{
-			FindFriendRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_FindFriendRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::AddToGroupRsp_Type:
-		{
-			AddToGroupRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_AddToGroupRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::CreateGroupRsp_Type:
-		{
-			CreateGroupRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_CreateGroupRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::DestroyGroupRsp_Type:
-		{
-			DestroyGroupRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_DestroyGroupRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::FindGroupRsp_Type:
-		{
-			FindGroupRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())){
-				if (m_httpServer) {
-					m_httpServer->On_FindGroupRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::SendGroupTextMsgRsp_Type:
-		{
-			SendGroupTextMsgRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_SendGroupTextMsgRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::RecvGroupTextMsgReq_Type:
-		{
-			RecvGroupTextMsgReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_RecvGroupTextMsgReqMsg(reqMsg);
-				}
-			}
-		}break;
-		case MessageType::FriendSendFileMsgRsp_Type:
-		{
-			FriendSendFileMsgRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_SendFriendFileOnlineRspMsg(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::FriendRecvFileMsgReq_Type:
-		{
-			FriendRecvFileMsgReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_FriendRecvFileMsgReqMsg(reqMsg);
-				}
-			}
-		}break;
-		case MessageType::FriendNotifyFileMsgReq_Type:
-		{
-			FriendNotifyFileMsgReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_FriendNotifyFileMsgReqMsg(reqMsg);
-				}
-				HandleFriendNotifyFileMsgReq(reqMsg);
-			}
-		}break;
-		case MessageType::FileRecvDataReq_Type:
-		{
-			FileDataRecvReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				HandleFileDataRecvReq(reqMsg);
-			}
-		}break;
-		case MessageType::FileSendDataRsp_Type:
-		{
-			FileDataSendRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				HandleFileDataSendRsp(rspMsg);
-			}
-		}break;
-		case MessageType::AddFriendSendRsp_Type:
-		{
-			AddFriendSendRspMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_AddFriendSendRspMsg(reqMsg);
-				}
-			}
-		}break;
-		case MessageType::RemoveFriendRsp_Type:
-		{
-			RemoveFriendRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_RemoveFriendRspMsg(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::AddFriendRecvReq_Type:
-		{
-			AddFriendRecvReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_AddFriendRecvReqMsg(reqMsg);
-				}
-			}
-		}break;
-		case MessageType::FriendChatSendTxtMsgRsp_Type:
-		{
-			FriendChatSendTxtRspMsg rspMsg;
-			if (rspMsg.FromString(pMsg->to_string())) {
-				if (m_httpServer) {
-					m_httpServer->On_FriendChatSendTxtRsp(rspMsg);
-				}
-			}
-		}break;
-		case MessageType::AddFriendNotifyReq_Type:
-		{
-			AddFriendNotifyReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_AddFriendNotifyReqMsg(reqMsg);
-				}
-			}
-		}break;
-		case MessageType::FriendChatReceiveTxtMsgReq_Type:
-		{
-			FriendChatRecvTxtReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				if (m_msgPersisUtil) {
-					m_msgPersisUtil->Save_FriendChatRecvTxtReqMsg(reqMsg);
-				}
-				{
-					FriendChatRecvTxtRspMsg rspMsg;
-					rspMsg.m_strFromId = reqMsg.m_strFromId;
-					rspMsg.m_strToId = reqMsg.m_strToId;
-					rspMsg.m_strMsgId = reqMsg.m_strMsgId;
-					auto pSess = GetClientSess(rspMsg.m_strToId);
-					if (pSess != nullptr)
-					{
-						auto pSend = std::make_shared<TransBaseMsg_t>(rspMsg.GetMsgType(), rspMsg.ToString());
-						pSess->SendMsg(pSend);
-					}
-				}
-			}
-
-		}break;
-		case MessageType::FriendUnReadMsgNotifyReq_Type:
-		{
-			FriendUnReadNotifyReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				FriendUnReadNotifyRspMsg rspMsg;
-				rspMsg.m_strMsgId = reqMsg.m_strMsgId;
-				rspMsg.m_strUserId = reqMsg.m_strUserId;
-				auto pSess = GetClientSess(rspMsg.m_strUserId);
-				if (pSess != nullptr)
-				{
-					auto pSend = std::make_shared<TransBaseMsg_t>(rspMsg.GetMsgType(), rspMsg.ToString());
-					pSess->SendMsg(pSend);
-				}
-			}
-
-		}break;
-		case MessageType::FileVerifyReq_Type:
-		{
-			FileVerifyReqMsg reqMsg;
-			if (reqMsg.FromString(pMsg->to_string())) {
-				HandleFileVerifyReq(reqMsg);
-			}
-		}break;
-		default:
-		{
-			LOG_ERR(ms_loger, "UnHandle MsgType:{} MsgContent:{} [{} {}]",MsgType(pMsg->GetType()),pMsg->to_string(), __FILENAME__, __LINE__);
-		}break;
-		}
-	}*/
 }
 
 

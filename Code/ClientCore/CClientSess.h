@@ -50,6 +50,8 @@ protected:
 	
 	//接收buf
 	char m_recvbuf[max_length];
+
+	char m_sendbuf[max_length];
 	
 	//接收位置
     uint32_t m_recvpos=0;
@@ -75,7 +77,7 @@ public:
     int StopConnect();
 	bool IsConnect(){return m_bConnect == ST_CONN_FINISHED;}
 	bool SendMsg(std::shared_ptr<TransBaseMsg_t> pMsg);
-
+	bool SendMsg(const std::string strMsg);
 	void SetUserName(const std::string strUserName)
 	{
 		m_strUserName = strUserName;

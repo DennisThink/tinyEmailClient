@@ -28,8 +28,8 @@ namespace ClientCore
 		if (reqMsg.FromString(strReq))
 		{
 			reqMsg.m_strMsgId = GenerateMsgId();
-			m_pServer->HandleUserLoginReq(reqMsg);
 			m_httpRspMap.insert(HTTP_RSP_MAP_PAIR(reqMsg.m_strMsgId, response));
+			m_pServer->HandleUserLoginReq(reqMsg);
 		}
 	}
 
@@ -40,8 +40,8 @@ namespace ClientCore
 		if (reqMsg.FromString(strReq))
 		{
 			reqMsg.m_strMsgId = GenerateMsgId();
-			m_pServer->HandleSendEmailReq(reqMsg);
 			m_httpRspMap.insert(HTTP_RSP_MAP_PAIR(reqMsg.m_strMsgId, response));
+			m_pServer->HandleSendEmailReq(reqMsg);
 		}
 	}
 
@@ -144,6 +144,14 @@ namespace ClientCore
 		//User Begin
 		m_httpServer.resource["/user_login"]["POST"] = [pSelf, this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 			this->Post_UserLogin(response, request);
+		};
+
+		m_httpServer.resource["/send_email"]["POST"] = [pSelf, this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
+			this->Post_SendEmail(response, request);
+		};
+
+		m_httpServer.resource["/query_task"]["GET"] = [pSelf, this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
+			this->Get_TaskState(response, request);
 		};
 		//User End
 	}
