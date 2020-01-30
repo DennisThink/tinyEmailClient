@@ -371,7 +371,8 @@ void CMediumServer::HandleSendEmailReq(const SendEmailReq& reqMsg)
 		IpPortCfg cfg = C_SMTP_Handler::GetSmtpIpServerAddr(reqMsg.m_strUserName);
 		auto pSess = GetClientSess(cfg);
 		auto pHandler = std::make_shared<C_SMTP_Handler>();
-
+		pHandler->SaveUserLogin(item->second);
+		pHandler->SaveSendEmail(reqMsg);
 		m_clientSessHandlerMap.insert({ pSess,pHandler });
 		rspMsg.m_strTaskId = m_httpServer->GenerateMsgId();
 		m_TaskIdHandlerMap.insert({ rspMsg.m_strTaskId,pHandler });

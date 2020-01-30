@@ -23,6 +23,8 @@ private:
 	bool HandleServerPasswordReq(const C_SMTP_Server_PassWordReq& rspMsg);
 	bool HandleServerDataBeginRsp(const C_SMTP_Server_DataBeginRsp& rspMsg);
 	bool HandleServerQuitRsp(const C_SMTP_Server_QuitRsp& rspMsg);
+	bool HandleServerAuthSuccessRsp(const C_SMTP_Server_AuthSuccessRsp& rspMsg);
+
 	UserLoginReqMsg loginReq;
 	SendEmailReq sendEmailReq;
 	std::shared_ptr<C_SMTP_CMD_BASE> m_pNextMsg;

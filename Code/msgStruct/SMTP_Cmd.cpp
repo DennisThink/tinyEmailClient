@@ -1,4 +1,5 @@
 #include "SMTP_Cmd.h"
+#include "base64.h"
 SMTP_CODE GetServerRspCode(const std::string strRsp)
 {
 	if (strRsp.length() > 3)
@@ -126,6 +127,7 @@ bool C_SMTP_CMD_BASE::FromString(const std::string strSmtp)
 }
 */
 
+
 C_SMTP_Client_HELO_CmdReq::C_SMTP_Client_HELO_CmdReq()
 {
 	m_type = SMTP_CMD_TYPE::C_S_HELO_REQ;
@@ -158,6 +160,38 @@ bool C_SMTP_Client_HELO_CmdReq::FromString(const std::string strSmtp)
 	return false;
 }
 
+C_SMTP_Client_EHLO_CmdReq::C_SMTP_Client_EHLO_CmdReq()
+{
+	m_type = SMTP_CMD_TYPE::C_S_EHLO_REQ;
+}
+
+C_SMTP_Client_EHLO_CmdReq::~C_SMTP_Client_EHLO_CmdReq()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Client_EHLO_CmdReq::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Client_EHLO_CmdReq::ToString()
+{
+	return "EHLO SMTP.163.com\r\n";
+}
+
+bool C_SMTP_Client_EHLO_CmdReq::FromString(const std::string strSmtp)
+{
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "EHLO")
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 C_SMTP_Server_250_Rsp::C_SMTP_Server_250_Rsp()
 {
@@ -181,7 +215,24 @@ std::string C_SMTP_Server_250_Rsp::ToString()
 
 bool C_SMTP_Server_250_Rsp::FromString(const std::string strSmtp)
 {
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "250-")
+		{
+			m_bRspFinished = false;
+			return true;
+		}
+		else if(strSmtp.substr(0,4) == "250 ")
+		{
+			m_bRspFinished = true;
+			return true;
+		}
+	}
 	return false;
+}
+
+bool C_SMTP_Server_250_Rsp::IsServerRspFinished() const {
+	return m_bRspFinished;
 }
 
 
@@ -203,11 +254,18 @@ SMTP_CMD_TYPE C_SMTP_Client_AuthLoginReq::GetCmdType()
 
 std::string C_SMTP_Client_AuthLoginReq::ToString()
 {
-	return "";
+	return "AUTH LOGIN\r\n";
 }
 
 bool C_SMTP_Client_AuthLoginReq::FromString(const std::string strSmtp)
 {
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "235 ")
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -234,6 +292,14 @@ std::string C_SMTP_Server_UserNameReq::ToString()
 
 bool C_SMTP_Server_UserNameReq::FromString(const std::string strSmtp)
 {
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "334 ")
+		{
+			std::string strUserName = base64_decode(strSmtp.substr(4, strSmtp.length() - 4));
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -260,11 +326,20 @@ std::string C_SMTP_Server_PassWordReq::ToString()
 
 bool C_SMTP_Server_PassWordReq::FromString(const std::string strSmtp)
 {
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "334 ")
+		{
+			std::string strUserName = base64_decode(strSmtp.substr(4, strSmtp.length() - 6));
+			return true;
+		}
+	}
 	return false;
 }
-C_SMTP_Client_UserNameRsp::C_SMTP_Client_UserNameRsp()
+C_SMTP_Client_UserNameRsp::C_SMTP_Client_UserNameRsp(const std::string strUserName)
 {
 	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+	m_strUserName = strUserName;
 }
 
 C_SMTP_Client_UserNameRsp::~C_SMTP_Client_UserNameRsp()
@@ -279,7 +354,7 @@ SMTP_CMD_TYPE C_SMTP_Client_UserNameRsp::GetCmdType()
 
 std::string C_SMTP_Client_UserNameRsp::ToString()
 {
-	return "";
+	return base64_encode(reinterpret_cast<const unsigned char *>(m_strUserName.data()),m_strUserName.length())+"\r\n";
 }
 
 bool C_SMTP_Client_UserNameRsp::FromString(const std::string strSmtp)
@@ -287,9 +362,10 @@ bool C_SMTP_Client_UserNameRsp::FromString(const std::string strSmtp)
 	return false;
 }
 
-C_SMTP_Client_PassWordRsp::C_SMTP_Client_PassWordRsp()
+C_SMTP_Client_PassWordRsp::C_SMTP_Client_PassWordRsp(const std::string strPassWord)
 {
 	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+	m_strPassWord = strPassWord;
 }
 
 C_SMTP_Client_PassWordRsp::~C_SMTP_Client_PassWordRsp()
@@ -304,7 +380,7 @@ SMTP_CMD_TYPE C_SMTP_Client_PassWordRsp::GetCmdType()
 
 std::string C_SMTP_Client_PassWordRsp::ToString()
 {
-	return "";
+	return base64_encode(reinterpret_cast<const unsigned char *>(m_strPassWord.data()), m_strPassWord.length()) + "\r\n";
 }
 
 bool C_SMTP_Client_PassWordRsp::FromString(const std::string strSmtp)
@@ -312,6 +388,92 @@ bool C_SMTP_Client_PassWordRsp::FromString(const std::string strSmtp)
 	return false;
 }
 
+C_SMTP_Client_RecvToReq::C_SMTP_Client_RecvToReq(const std::string strRecvEmail)
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+	m_strRecvEmail = strRecvEmail;
+}
+
+C_SMTP_Client_RecvToReq::~C_SMTP_Client_RecvToReq()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Client_RecvToReq::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Client_RecvToReq::ToString()
+{
+	return "RECP TO: <"+m_strRecvEmail+">\r\n";
+}
+
+bool C_SMTP_Client_RecvToReq::FromString(const std::string strSmtp)
+{
+	return false;
+}
+
+C_SMTP_Client_MailFromReq::C_SMTP_Client_MailFromReq(const std::string strUserEmail)
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+	m_strUserEmail = strUserEmail;
+}
+
+C_SMTP_Client_MailFromReq::~C_SMTP_Client_MailFromReq()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Client_MailFromReq::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Client_MailFromReq::ToString()
+{
+	return "MAIL FROM: <"+m_strUserEmail+">\r\n";
+}
+
+bool C_SMTP_Client_MailFromReq::FromString(const std::string strSmtp)
+{
+	return false;
+}
+
+
+
+C_SMTP_Server_AuthSuccessRsp::C_SMTP_Server_AuthSuccessRsp()
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+}
+
+C_SMTP_Server_AuthSuccessRsp::~C_SMTP_Server_AuthSuccessRsp()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Server_AuthSuccessRsp::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Server_AuthSuccessRsp::ToString()
+{
+	return "";
+}
+
+bool C_SMTP_Server_AuthSuccessRsp::FromString(const std::string strSmtp)
+{
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "235 ")
+		{
+			std::string strUserName = base64_decode(strSmtp.substr(4, strSmtp.length() - 6));
+			return true;
+		}
+	}
+	return false;
+}
 C_SMTP_Server_QuitRsp::C_SMTP_Server_QuitRsp()
 {
 	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
@@ -333,6 +495,32 @@ std::string C_SMTP_Server_QuitRsp::ToString()
 }
 
 bool C_SMTP_Server_QuitRsp::FromString(const std::string strSmtp)
+{
+	return false;
+}
+
+
+C_SMTP_Server_DataBeginRsp::C_SMTP_Server_DataBeginRsp()
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+}
+
+C_SMTP_Server_DataBeginRsp::~C_SMTP_Server_DataBeginRsp()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Server_DataBeginRsp::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Server_DataBeginRsp::ToString()
+{
+	return "";
+}
+
+bool C_SMTP_Server_DataBeginRsp::FromString(const std::string strSmtp)
 {
 	return false;
 }

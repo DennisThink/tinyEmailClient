@@ -6,6 +6,7 @@ enum class SMTP_CMD_TYPE
 	UnKnown,
 	S_C_220_RSP,//Server 220»Ø¸´
 	C_S_HELO_REQ,
+	C_S_EHLO_REQ,
 	C_S_AUTH_LOGIN_REQ,
 	S_C_USER_NAME_REQ,
 	S_C_PASS_WORD_REQ,
@@ -83,6 +84,15 @@ public:
 	virtual bool FromString(const std::string strSmtp) override;
 };
 
+class C_SMTP_Client_EHLO_CmdReq final :public C_SMTP_CMD_BASE
+{
+public:
+	C_SMTP_Client_EHLO_CmdReq();
+	virtual ~C_SMTP_Client_EHLO_CmdReq();
+	virtual SMTP_CMD_TYPE GetCmdType() override;
+	virtual std::string ToString() override;
+	virtual bool FromString(const std::string strSmtp) override;
+};
 class C_SMTP_Server_250_Rsp :public C_SMTP_CMD_BASE
 {
 public:
@@ -91,6 +101,9 @@ public:
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+	bool IsServerRspFinished() const ;
+public:
+	bool m_bRspFinished;
 };
 
 class C_SMTP_Client_AuthLoginReq :public C_SMTP_CMD_BASE
@@ -126,21 +139,25 @@ public:
 class C_SMTP_Client_PassWordRsp :public C_SMTP_CMD_BASE
 {
 public:
-	C_SMTP_Client_PassWordRsp();
+	C_SMTP_Client_PassWordRsp(const std::string strPassWord);
 	virtual ~C_SMTP_Client_PassWordRsp();
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+public:
+	std::string m_strPassWord;
 };
 
 class C_SMTP_Client_UserNameRsp :public C_SMTP_CMD_BASE
 {
 public:
-	C_SMTP_Client_UserNameRsp();
+	C_SMTP_Client_UserNameRsp(const std::string strUserName);
 	virtual ~C_SMTP_Client_UserNameRsp();
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+protected:
+	std::string m_strUserName;
 };
 
 class C_SMTP_Server_AuthSuccessRsp :public C_SMTP_CMD_BASE
@@ -156,21 +173,25 @@ public:
 class C_SMTP_Client_MailFromReq :public C_SMTP_CMD_BASE
 {
 public:
-	C_SMTP_Client_MailFromReq();
+	C_SMTP_Client_MailFromReq(const std::string strUserEmail);
 	virtual ~C_SMTP_Client_MailFromReq();
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+protected:
+	std::string m_strUserEmail;
 };
 
 class C_SMTP_Client_RecvToReq :public C_SMTP_CMD_BASE
 {
 public:
-	C_SMTP_Client_RecvToReq();
+	C_SMTP_Client_RecvToReq(const std::string strRecvEmail);
 	virtual ~C_SMTP_Client_RecvToReq();
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+protected:
+	std::string m_strRecvEmail;
 };
 
 class C_SMTP_Client_DataBeginReq :public C_SMTP_CMD_BASE

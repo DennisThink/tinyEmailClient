@@ -9,6 +9,7 @@ include_directories(../include/thirdparty/)
 include_directories(../include/thirdparty/asio/)
 include_directories(../include/thirdparty/spdlog/)
 include_directories(../include/thirdparty/json11/)
+include_directories(../include/thirdparty/base64/)
 include_directories(../include/thirdparty/fmt/include/)
 include_directories(../include/thirdparty/httpServer/)
 include_directories(../include/thirdparty/SnowFlake/)
@@ -51,6 +52,7 @@ set(SERVER_FILES
 		../msgStruct/CommonDef.cpp
         ../msgStruct/CommonMsg.cpp
         ../msgStruct/SMTP_Cmd.cpp
+		../include/thirdparty/base64/base64.cpp
         )
 
 SET(SQLITE_CPP_SOURCE ../include/thirdparty/SQLiteCpp/sqlite3/sqlite3.c

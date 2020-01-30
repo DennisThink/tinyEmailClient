@@ -35,6 +35,7 @@ bool C_SMTP_Handler::HandleServerRsp(const std::string strSmtpRsp)
 	}break;
 	case SMTP_CODE::CODE_334:
 	{
+		if(SMTP_STEP::ON_SERVER_250_STEP == m_step)
 		{
 			C_SMTP_Server_UserNameReq rspMsg;
 			if (rspMsg.FromString(strSmtpRsp))
@@ -42,7 +43,7 @@ bool C_SMTP_Handler::HandleServerRsp(const std::string strSmtpRsp)
 				HandleServerUserNameReq(rspMsg);
 			}
 		}
-
+		else if(SMTP_STEP::ON_SERVER_USER_NAME_STEP == m_step)
 		{
 			C_SMTP_Server_PassWordReq rspMsg;
 			if (rspMsg.FromString(strSmtpRsp))
@@ -59,9 +60,21 @@ bool C_SMTP_Handler::HandleServerRsp(const std::string strSmtpRsp)
 			HandleServerQuitRsp(rspMsg);
 		}
 	}break;
+	case SMTP_CODE::CODE_235:
+	{
+		C_SMTP_Server_AuthSuccessRsp rspMsg;
+		if (rspMsg.FromString(strSmtpRsp))
+		{
+			HandleServerAuthSuccessRsp(rspMsg);
+		}
+	}break;
 	case SMTP_CODE::CODE_354:
 	{
-
+		C_SMTP_Server_DataBeginRsp rspMsg;
+		if (rspMsg.FromString(strSmtpRsp))
+		{
+			HandleServerDataBeginRsp(rspMsg);
+		}
 	}break;
 	default:
 	{
@@ -80,7 +93,7 @@ std::shared_ptr<C_SMTP_CMD_BASE> C_SMTP_Handler::GetNextMsg()
 bool C_SMTP_Handler::HandleServer220Rsp(const C_SMTP_Server_On_Connect_Rsp& rspMsg)
 {
 	m_step = SMTP_STEP::ON_CONNECT_STEP;
-	auto pNextMsg = std::make_shared<C_SMTP_Client_HELO_CmdReq>();
+	auto pNextMsg = std::make_shared<C_SMTP_Client_EHLO_CmdReq>();
 	m_pNextMsg = pNextMsg;
 	return true;
 }
@@ -88,15 +101,40 @@ bool C_SMTP_Handler::HandleServer220Rsp(const C_SMTP_Server_On_Connect_Rsp& rspM
 bool C_SMTP_Handler::HandleServer250Rsp(const C_SMTP_Server_250_Rsp& rspMsg)
 {
 	m_step = SMTP_STEP::ON_SERVER_250_STEP;
-	auto pNextMsg = std::make_shared<C_SMTP_Client_AuthLoginReq>();
-	m_pNextMsg = pNextMsg;
+	if (SMTP_STEP::ON_CONNECT_STEP == m_step)
+	{
+		if (rspMsg.IsServerRspFinished())
+		{
+			auto pNextMsg = std::make_shared<C_SMTP_Client_AuthLoginReq>();
+			m_pNextMsg = pNextMsg;
+		}
+	}
+	else if (SMTP_STEP::ON_SERVER_AUTH_SUCCEED_STEP == m_step)
+	{
+		m_step = SMTP_STEP::ON_SERVER_MAIL_FROM_STEP;
+		if (rspMsg.IsServerRspFinished())
+		{
+			auto pNextMsg = std::make_shared<C_SMTP_Client_MailFromReq>(sendEmailReq.m_strUserName);
+			m_pNextMsg = pNextMsg;
+		}
+	}
+	else if (SMTP_STEP::ON_SERVER_MAIL_FROM_STEP == m_step)
+	{
+		m_step = SMTP_STEP::ON_SERVER_SEND_DATA_BEGIN_RSP;
+		if (rspMsg.IsServerRspFinished())
+		{
+			auto pNextMsg = std::make_shared<C_SMTP_Client_RecvToReq>(sendEmailReq.m_strRecvName);
+			m_pNextMsg = pNextMsg;
+		}
+	}
+
 	return true;
 }
 
 bool C_SMTP_Handler::HandleServerUserNameReq(const C_SMTP_Server_UserNameReq& rspMsg)
 {
 	m_step = SMTP_STEP::ON_SERVER_USER_NAME_STEP;
-	auto pNextMsg = std::make_shared<C_SMTP_Client_UserNameRsp>();
+	auto pNextMsg = std::make_shared<C_SMTP_Client_UserNameRsp>(loginReq.m_strUserName);
 	m_pNextMsg = pNextMsg;
 	return true;
 }
@@ -104,7 +142,7 @@ bool C_SMTP_Handler::HandleServerUserNameReq(const C_SMTP_Server_UserNameReq& rs
 bool C_SMTP_Handler::HandleServerPasswordReq(const C_SMTP_Server_PassWordReq& rspMsg)
 {
 	m_step = SMTP_STEP::ON_SERVER_PASS_WORD_STEP;
-	auto pNextMsg = std::make_shared<C_SMTP_Client_PassWordRsp>();
+	auto pNextMsg = std::make_shared<C_SMTP_Client_PassWordRsp>(loginReq.m_strPassword);
 	m_pNextMsg = pNextMsg;
 	return true;
 }
@@ -121,6 +159,10 @@ bool C_SMTP_Handler::HandleServerDataBeginRsp(const C_SMTP_Server_DataBeginRsp& 
 	return true;
 }
 
+bool C_SMTP_Handler::HandleServerAuthSuccessRsp(const C_SMTP_Server_AuthSuccessRsp& rspMsg)
+{
+	return true;
+}
 
 
 IpPortCfg C_SMTP_Handler::GetSmtpIpServerAddr(const std::string strUserEmail)

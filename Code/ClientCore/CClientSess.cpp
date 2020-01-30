@@ -83,7 +83,7 @@ int CClientSess::StopConnect()
 }
 void CClientSess::handle_message(const std::string strMsg)
 {
-	LOG_INFO(ms_loger, "{} [{} {}]", strMsg,__FILENAME__,__LINE__);
+	LOG_INFO(ms_loger, "S: {} [{} {}]", strMsg,__FILENAME__,__LINE__);
 	if (m_queue)
 	{
 		m_queue->SendBack(shared_from_this(), strMsg);
@@ -129,12 +129,17 @@ int CClientSess::do_read()
 				//此处必须为 >=，否则需要等到下一条消息到来的时候，前一条消息才能处理
 				std::string strRecv(m_recvbuf, curlen);
 				auto nPos = strRecv.find("\r\n");
-				if (nPos != std::string::npos && nPos != 0)
+				while (nPos != std::string::npos && nPos != 0)
 				{
-					std::string strCur = strRecv.substr(0, nPos);
+					std::string strRecvNew(m_recvbuf, curlen);
+					std::string strCur = strRecvNew.substr(0, nPos);
 					handle_message(strCur);
-					memmove(m_recvbuf, m_recvbuf + nPos, curlen - nPos);
+					memmove(m_recvbuf, m_recvbuf + nPos+2, curlen - nPos-2);
 					curlen = curlen - nPos - 2;
+					{
+						std::string strRecvNew2(m_recvbuf, curlen);
+						nPos = strRecvNew2.find("\r\n");
+					}
 				}
 				m_recvpos = (uint32_t)curlen;
 				if (!ec)
@@ -195,7 +200,7 @@ bool CClientSess::SendMsg(const std::string strMsg)
 {
 	if (IsConnect())
 	{
-		LOG_WARN(ms_loger, " {} Send {}", GetConnectInfo(), strMsg);
+		LOG_WARN(ms_loger, "C: {} Send {}", GetConnectInfo(), strMsg);
 		auto self = shared_from_this();
 		memcpy(m_sendbuf, strMsg.data(), strMsg.length());
 		asio::async_write(
