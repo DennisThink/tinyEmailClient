@@ -100,13 +100,13 @@ bool C_SMTP_Handler::HandleServer220Rsp(const C_SMTP_Server_On_Connect_Rsp& rspM
 
 bool C_SMTP_Handler::HandleServer250Rsp(const C_SMTP_Server_250_Rsp& rspMsg)
 {
-	m_step = SMTP_STEP::ON_SERVER_250_STEP;
 	if (SMTP_STEP::ON_CONNECT_STEP == m_step)
 	{
 		if (rspMsg.IsServerRspFinished())
 		{
 			auto pNextMsg = std::make_shared<C_SMTP_Client_AuthLoginReq>();
 			m_pNextMsg = pNextMsg;
+			m_step = SMTP_STEP::ON_SERVER_250_STEP;
 		}
 	}
 	else if (SMTP_STEP::ON_SERVER_AUTH_SUCCEED_STEP == m_step)
@@ -118,13 +118,23 @@ bool C_SMTP_Handler::HandleServer250Rsp(const C_SMTP_Server_250_Rsp& rspMsg)
 			m_pNextMsg = pNextMsg;
 		}
 	}
-	else if (SMTP_STEP::ON_SERVER_MAIL_FROM_STEP == m_step)
+	else if (SMTP_STEP::SEND_MAIL_FROM_STEP == m_step)
 	{
-		m_step = SMTP_STEP::ON_SERVER_SEND_DATA_BEGIN_RSP;
+		//m_step = SMTP_STEP::ON_SERVER_SEND_DATA_BEGIN_RSP;
 		if (rspMsg.IsServerRspFinished())
 		{
 			auto pNextMsg = std::make_shared<C_SMTP_Client_RecvToReq>(sendEmailReq.m_strRecvName);
 			m_pNextMsg = pNextMsg;
+			m_step = SMTP_STEP::SEND_RCPT_TO_STEP;
+		}
+	}
+	else if (SMTP_STEP::SEND_RCPT_TO_STEP == m_step)
+	{
+		if (rspMsg.IsServerRspFinished())
+		{
+			auto pNextMsg = std::make_shared<C_SMTP_Client_DataBeginReq>();
+			m_pNextMsg = pNextMsg;
+			m_step = SMTP_STEP::SEND_DATA_BEGIN_STEP;
 		}
 	}
 
@@ -156,11 +166,19 @@ bool C_SMTP_Handler::HandleServerQuitRsp(const C_SMTP_Server_QuitRsp& rspMsg)
 bool C_SMTP_Handler::HandleServerDataBeginRsp(const C_SMTP_Server_DataBeginRsp& rspMsg)
 {
 	m_step = SMTP_STEP::ON_SERVER_SEND_DATA_BEGIN_RSP;
+	auto pMsg = std::make_shared<C_SMTP_Client_DataBodyReq>();
+	pMsg->m_strFrom = sendEmailReq.m_strUserName;
+	pMsg->m_strTo = sendEmailReq.m_strRecvName;
+	pMsg->m_strSubject = sendEmailReq.m_strSubject;
+	pMsg->m_strContext = sendEmailReq.m_strEmailContext;
+	m_pNextMsg = pMsg;
 	return true;
 }
 
 bool C_SMTP_Handler::HandleServerAuthSuccessRsp(const C_SMTP_Server_AuthSuccessRsp& rspMsg)
 {
+	m_pNextMsg = std::make_shared<C_SMTP_Client_MailFromReq>(sendEmailReq.m_strUserName);
+	m_step = SMTP_STEP::SEND_MAIL_FROM_STEP;
 	return true;
 }
 

@@ -222,6 +222,11 @@ public:
 	virtual SMTP_CMD_TYPE GetCmdType() override;
 	virtual std::string ToString() override;
 	virtual bool FromString(const std::string strSmtp) override;
+public:
+	std::string m_strSubject;
+	std::string m_strFrom;
+	std::string m_strTo;
+	std::string m_strContext;
 };
 
 class C_SMTP_Client_DataEndReq :public C_SMTP_CMD_BASE

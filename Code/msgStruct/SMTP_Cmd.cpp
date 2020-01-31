@@ -406,7 +406,7 @@ SMTP_CMD_TYPE C_SMTP_Client_RecvToReq::GetCmdType()
 
 std::string C_SMTP_Client_RecvToReq::ToString()
 {
-	return "RECP TO: <"+m_strRecvEmail+">\r\n";
+	return "RCPT TO: <"+m_strRecvEmail+">\r\n";
 }
 
 bool C_SMTP_Client_RecvToReq::FromString(const std::string strSmtp)
@@ -521,6 +521,69 @@ std::string C_SMTP_Server_DataBeginRsp::ToString()
 }
 
 bool C_SMTP_Server_DataBeginRsp::FromString(const std::string strSmtp)
+{
+	if (strSmtp.length() > 4)
+	{
+		if (strSmtp.substr(0, 4) == "354 ")
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+C_SMTP_Client_DataBeginReq::C_SMTP_Client_DataBeginReq()
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+}
+
+C_SMTP_Client_DataBeginReq::~C_SMTP_Client_DataBeginReq()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Client_DataBeginReq::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Client_DataBeginReq::ToString()
+{
+	return "DATA\r\n";
+}
+
+bool C_SMTP_Client_DataBeginReq::FromString(const std::string strSmtp)
+{
+	return false;
+}
+
+C_SMTP_Client_DataBodyReq::C_SMTP_Client_DataBodyReq()
+{
+	m_type = SMTP_CMD_TYPE::S_C_SERVER_QUIT_RSP;
+}
+
+C_SMTP_Client_DataBodyReq::~C_SMTP_Client_DataBodyReq()
+{
+
+}
+
+SMTP_CMD_TYPE C_SMTP_Client_DataBodyReq::GetCmdType()
+{
+	return m_type;
+}
+
+std::string C_SMTP_Client_DataBodyReq::ToString()
+{
+	std::string strResult = "Subject:" + m_strSubject + "\r\n";
+	strResult = strResult + "From:\"\"<" + m_strFrom + ">\r\n";
+	strResult = strResult + "To:\"\"" + m_strTo + ">\r\n";
+	strResult = strResult + m_strContext;
+	strResult = strResult + "\r\n.\r\n";
+	return strResult;
+}
+
+bool C_SMTP_Client_DataBodyReq::FromString(const std::string strSmtp)
 {
 	return false;
 }
