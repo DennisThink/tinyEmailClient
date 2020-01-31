@@ -577,7 +577,8 @@ std::string C_SMTP_Client_DataBodyReq::ToString()
 {
 	std::string strResult = "Subject:" + m_strSubject + "\r\n";
 	strResult = strResult + "From:\"\"<" + m_strFrom + ">\r\n";
-	strResult = strResult + "To:\"\"" + m_strTo + ">\r\n";
+	strResult = strResult + "To:\"\"<" + m_strTo + ">\r\n";
+	strResult += "\r\n\r\n";
 	strResult = strResult + m_strContext;
 	strResult = strResult + "\r\n.\r\n";
 	return strResult;

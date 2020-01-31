@@ -123,6 +123,15 @@ bool C_SMTP_Handler::HandleServer250Rsp(const C_SMTP_Server_250_Rsp& rspMsg)
 		//m_step = SMTP_STEP::ON_SERVER_SEND_DATA_BEGIN_RSP;
 		if (rspMsg.IsServerRspFinished())
 		{
+			auto pNextMsg = std::make_shared<C_SMTP_Client_RecvToReq>(sendEmailReq.m_strUserName);
+			m_pNextMsg = pNextMsg;
+			m_step = SMTP_STEP::SEND_RCPT_TO_SELF_STEP;
+		}
+	}
+	else if (SMTP_STEP::SEND_RCPT_TO_SELF_STEP == m_step)
+	{
+		if (rspMsg.IsServerRspFinished())
+		{
 			auto pNextMsg = std::make_shared<C_SMTP_Client_RecvToReq>(sendEmailReq.m_strRecvName);
 			m_pNextMsg = pNextMsg;
 			m_step = SMTP_STEP::SEND_RCPT_TO_STEP;
