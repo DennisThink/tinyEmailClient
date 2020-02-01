@@ -50,6 +50,17 @@ namespace ClientCore
 
 	}
 
+	void CHttpServer::Get_UserEmail(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request)
+	{
+		GetEmailReq reqMsg;
+		reqMsg.m_strMsgId = GenerateMsgId();
+		reqMsg.m_strUserEmail = GetHttpParamUserId(request);
+		if (m_pServer)
+		{
+			m_pServer->HandleGetUserEmail(reqMsg);
+		}
+	}
+
 
 
 	/**
@@ -95,9 +106,19 @@ namespace ClientCore
 		}
 	}
 
+	void CHttpServer::On_GetEmailRsp(const GetEmailRsp& msg)
+	{
+		if (!msg.m_strMsgId.empty()) {
+			auto item = m_httpRspMap.find(msg.m_strMsgId);
+			if (item != m_httpRspMap.end()) {
+				std::string strContent = msg.ToString();
+				(*(item->second)) << "HTTP/1.1 200 OK\r\nContent-Length: " << strContent.length() << "\r\n\r\n"
+					<< strContent;
+				m_httpRspMap.erase(item);
+			}
+		}
+	}
 	
-
-
 	/**
 	 * @brief 获取服务程序的版本
 	 * 
@@ -152,6 +173,10 @@ namespace ClientCore
 
 		m_httpServer.resource["/query_task"]["GET"] = [pSelf, this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 			this->Get_TaskState(response, request);
+		};
+
+		m_httpServer.resource["/get_email"]["GET"] = [pSelf, this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
+			this->Get_UserEmail(response, request);
 		};
 		//User End
 	}

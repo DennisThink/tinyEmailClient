@@ -28,6 +28,7 @@
 #include "CMsgPersistentUtil.h"
 #include "CFileUtil.h"
 #include "SMTP_Handler.h"
+#include "IMAP_Handler.h"
 namespace ClientCore
 {
 using tcp = asio::ip::tcp;
@@ -70,6 +71,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
     void do_accept();
 	void OnHttpRsp(std::shared_ptr<TransBaseMsg_t> pMsg);
 	C_SMTP_Handler_PTR GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess);
+	C_IMAP_Handler_PTR GetImapHandler(const std::shared_ptr<CClientSess>& pClientSess);
 
   public:
     static std::shared_ptr<spdlog::logger> ms_loger;
@@ -78,6 +80,7 @@ class CMediumServer : public std::enable_shared_from_this<CMediumServer>
 	void HandleSendEmailReq(const SendEmailReq& reqMsg);
 	void HandleUserLoginReq(const UserLoginReqMsg& reqMsg);
 	void HandleGetTaskReq(const QueryTaskReq& reqMsg);
+	void HandleGetUserEmail(const GetEmailReq& reqMsg);
     void SendBack(const std::shared_ptr<CClientSess>& pClientSess,const TransBaseMsg_t& msg);
 	void SendBack(const std::shared_ptr<CClientSess>& pClientSess, const std::string msg);
 	void SendFoward(const std::shared_ptr<CServerSess>& pServerSess,const TransBaseMsg_t& msg);
@@ -112,7 +115,10 @@ private:
 	std::map<std::string, UserLoginReqMsg> m_userLoginMsgMap;
 	C_SMTP_Handler_PTR m_smtpHandler;
 	std::map<CClientSess_SHARED_PTR, C_SMTP_Handler_PTR> m_clientSessHandlerMap;
+	std::map<CClientSess_SHARED_PTR, C_IMAP_Handler_PTR> m_clientSessImapHandlerMap;
+
 	std::map<std::string, C_SMTP_Handler_PTR> m_TaskIdHandlerMap;
+
 };
 } // namespace MediumServer
 

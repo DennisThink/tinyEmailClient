@@ -45,7 +45,7 @@ namespace ClientCore {
 		void On_SendEmailRsp(const SendEmailRsp& msg);
 		void On_QueryTaskRsp(const QueryTaskRsp& msg);
 		//void On_UserLogoutRsp(const )
-
+		void On_GetEmailRsp(const GetEmailRsp& msg);
 		static std::shared_ptr<spdlog::logger> ms_loger;
 
 		std::string GenerateMsgId() {
@@ -63,6 +63,7 @@ namespace ClientCore {
 
 		void Get_TaskState(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request);
 
+		void Get_UserEmail(std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request);
 		void Init();
 
 		std::string GetHttpParamUserId(std::shared_ptr<HttpServer::Request> request);

@@ -416,7 +416,19 @@ void CMediumServer::SendBack(const std::shared_ptr<CClientSess>& pClientSess, co
 			pClientSess->SendMsg(pMsg->ToString());
 		}
 	}
+	auto pImap = GetImapHandler(pClientSess);
+	if (pImap)
+	{
+		pImap->HandleServerRsp(msg);
+		auto pMsg = pImap->GetNextMsg();
+		if (pMsg)
+		{
+			pClientSess->SendMsg(pMsg->ToString());
+		}
+	}
+
 }
+
 C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSess>& pClientSess)
 {
 	auto item = m_clientSessHandlerMap.find(pClientSess);
@@ -427,6 +439,42 @@ C_SMTP_Handler_PTR CMediumServer::GetSmtpHandler(const std::shared_ptr<CClientSe
 	else
 	{
 		return nullptr;
+	}
+}
+
+C_IMAP_Handler_PTR CMediumServer::GetImapHandler(const std::shared_ptr<CClientSess>& pClientSess)
+{
+	auto item = m_clientSessImapHandlerMap.find(pClientSess);
+	if (item != m_clientSessImapHandlerMap.end())
+	{
+		return item->second;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+
+void CMediumServer::HandleGetUserEmail(const GetEmailReq& reqMsg)
+{
+	GetEmailRsp rspMsg;
+	rspMsg.m_strMsgId = reqMsg.m_strMsgId;
+	auto item = m_userLoginMsgMap.find(reqMsg.m_strUserEmail);
+	if (item != m_userLoginMsgMap.end())
+	{
+		IpPortCfg cfg = C_IMAP_Handler::GetImapIpServerAddr(reqMsg.m_strUserEmail);
+		auto pSess = GetClientSess(cfg);
+		auto pHandler = std::make_shared<C_IMAP_Handler>();
+		pHandler->SaveUserLogin(item->second);
+		m_clientSessImapHandlerMap.insert({ pSess,pHandler });
+		pSess->StartConnect();
+	}
+
+
+	if (m_httpServer)
+	{
+		m_httpServer->On_GetEmailRsp(rspMsg);
 	}
 }
 /**

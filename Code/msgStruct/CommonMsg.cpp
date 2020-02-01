@@ -1,4 +1,4 @@
-#include "CommonMsg.h"
+﻿#include "CommonMsg.h"
 
 
 
@@ -674,6 +674,168 @@ bool QueryTaskRsp::FromString(const std::string &strJson)
 
 
 bool QueryTaskRsp::Valid() const
+{
+	return true;
+}
+
+
+
+GetEmailReq::GetEmailReq()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string GetEmailReq::ToString() const
+{
+	using namespace json11;
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"MsgId", m_strMsgId},
+			{"UserName",m_strUserEmail},
+		});
+
+	return clientObj.dump();
+}
+
+bool GetEmailReq::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["UserName"].is_string())
+	{
+		m_strUserEmail = json["UserName"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+
+bool GetEmailReq::Valid() const
+{
+	return true;
+}
+
+GetEmailRsp::GetEmailRsp()
+{
+	m_type = E_MsgType::UserLoginRsp_Type;
+}
+
+std::string GetEmailRsp::ToString() const
+{
+	using namespace json11;
+	json11::Json clientObj = json11::Json::object(
+		{
+			{"Code",static_cast<int>(m_eErrCode)},
+			{"Msg",m_strErrMsg},
+			{"MsgId", m_strMsgId},
+			{"UserName",m_strUserName},
+			{"RecvName",m_strRecvName},
+			{"Subject",m_strSubject},
+			{"Context",m_strEmailContext},
+		});
+
+	return clientObj.dump();
+}
+
+bool GetEmailRsp::FromString(const std::string &strJson)
+{
+	std::string err;
+	using namespace json11;
+	auto json = Json::parse(strJson, err);
+	if (!err.empty())
+	{
+		return false;
+	}
+
+	if (json["Code"].is_number())
+	{
+		m_eErrCode = static_cast<ERROR_CODE_TYPE>(json["Code"].int_value());
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Msg"].is_string())
+	{
+		m_strErrMsg = json["Msg"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["MsgId"].is_string())
+	{
+		m_strMsgId = json["MsgId"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["UserName"].is_string())
+	{
+		m_strUserName = json["UserName"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["RecvName"].is_string())
+	{
+		m_strRecvName = json["RecvName"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Subject"].is_string())
+	{
+		m_strSubject = json["Subject"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	if (json["Context"].is_string())
+	{
+		m_strEmailContext = json["Context"].string_value();
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool GetEmailRsp::Valid() const
 {
 	return true;
 }

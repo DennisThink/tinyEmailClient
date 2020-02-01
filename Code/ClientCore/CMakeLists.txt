@@ -49,9 +49,11 @@ set(SERVER_FILES
 		CMsgPersistentUtil.h CMsgPersistentUtil.cpp
 		CFileUtil.h  CFileUtil.cpp
 		./SMTP_Handler.h ./SMTP_Handler.cpp
+		./IMAP_Handler.h ./IMAP_Handler.cpp
 		../msgStruct/CommonDef.cpp
         ../msgStruct/CommonMsg.cpp
         ../msgStruct/SMTP_Cmd.cpp
+		../msgStruct/IMAP_Cmd.cpp
 		../include/thirdparty/base64/base64.cpp
         )
 
