@@ -43,6 +43,13 @@ bool C_IMAP_Handler::HandleServerRsp(const std::string strSmtpRsp)
 			HandleServerFetchEmail(rspMsg);
 		}
 	}break;
+	case IMAP_STEP::SEND_LOGOUT_STEP:
+	{
+		C_IMAP_Server_Logout_Rsp rspMsg;
+		if (rspMsg.FromString(strSmtpRsp)) {
+			HandleServerLogoutRsp(rspMsg);
+		}
+	}
 	default:
 	{
 
@@ -53,23 +60,43 @@ bool C_IMAP_Handler::HandleServerRsp(const std::string strSmtpRsp)
 }
 bool C_IMAP_Handler::HandleServerOnConnect(const C_IMAP_Server_On_Connect& rspMsg)
 {
-	m_pNextMsg = std::make_shared<C_IMAP_Client_Login_Req>();
+	auto pMsg = std::make_shared<C_IMAP_Client_Login_Req>();
+	pMsg->m_LoginReq = loginReq;
+	m_pNextMsg = pMsg;
 	return true;
 }
 
 bool C_IMAP_Handler::HandleServerLoginRsp(const C_IMAP_Server_Login_Rsp& rspMsg)
 {
+	if (rspMsg.IsOK())
+	{
+		m_pNextMsg = std::make_shared<C_IMAP_Client_SelectAll_Req>();
+	}
 	return false;
 }
 
 bool C_IMAP_Handler::HandleServerFetchEmail(const C_IMAP_Server_FetchEmail_Rsp& rspMsg)
 {
+	if(rspMsg.IsOK())
+	{
+		m_pNextMsg = std::make_shared<C_IMAP_Client_Logout_Req>();
+	}
 	return false;
 }
 bool C_IMAP_Handler::HandleServerSelectAll(const C_IMAP_Server_SelectAll_Rsp& rspMsg)
 {
+	if (rspMsg.IsOK())
+	{
+		m_pNextMsg = std::make_shared<C_IMAP_Client_FetchEmail_Req>();
+	}
 	return false;
 }
+
+bool C_IMAP_Handler::HandleServerLogoutRsp(const C_IMAP_Server_Logout_Rsp& rspMsg)
+{
+	return false;
+}
+
 
 IpPortCfg C_IMAP_Handler::GetImapIpServerAddr(const std::string strUserEmail)
 {

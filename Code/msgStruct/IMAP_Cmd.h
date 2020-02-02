@@ -1,6 +1,7 @@
 #ifndef _DENNIS_THINK_IMAP_CMD_H_
 #define _DENNIS_THINK_IMAP_CMD_H_
 #include <string>
+#include "CommonMsg.h"
 enum class IMAP_TYPE
 {
 	IMAP_UNKNOWN,
@@ -37,7 +38,7 @@ public:
 	virtual std::string ToString();
 	virtual bool FromString(const std::string strImap);
 	std::string GetCmdId();
-	bool IsOK();
+	bool IsOK() const;
 protected:
 	bool m_bIsOk;
 	IMAP_TYPE m_type;
@@ -85,7 +86,8 @@ public:
 	virtual IMAP_TYPE GetType();
 	virtual std::string ToString();
 	virtual bool FromString(const std::string strImap);
-
+public:
+	UserLoginReqMsg m_LoginReq;
 };
 
 class C_IMAP_Server_Login_Rsp :public C_IMAP_BASE

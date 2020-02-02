@@ -19,6 +19,8 @@ private:
 	bool HandleServerLoginRsp(const C_IMAP_Server_Login_Rsp& rspMsg);
 	bool HandleServerSelectAll(const C_IMAP_Server_SelectAll_Rsp& rspMsg);
 	bool HandleServerFetchEmail(const C_IMAP_Server_FetchEmail_Rsp& rspMsg);
+	bool HandleServerLogoutRsp(const C_IMAP_Server_Logout_Rsp& rspMsg);
+
 	UserLoginReqMsg loginReq;
 	SendEmailReq sendEmailReq;
 	std::shared_ptr<C_IMAP_BASE> m_pNextMsg;
